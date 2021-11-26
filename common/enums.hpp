@@ -25,6 +25,7 @@
 
 #include <string.h>
 
+namespace cmn {
 namespace enums {
 namespace details {
 
@@ -43,6 +44,7 @@ namespace details {
 
 } // namespace details
 } // namespace enums
+} // namespace cmn
 
 template<typename T> constexpr size_t enum_size() { return 0; }
 
@@ -52,37 +54,37 @@ template<typename T> constexpr size_t enum_size() { return 0; }
 
 #define ENUMARGS(...) __VA_ARGS__
 
-#define ENUMS(NAME, VALUES, STRINGS)                                        \
-    namespace enums{ namespace details { namespace NAME {                   \
-        typedef std::array<                                                 \
-            char[::enums::details::va_max_len(___ENUM_STRINGS(STRINGS))],   \
-            ::enums::details::va_count(___ENUM_STRINGS(STRINGS))            \
-        > string_type_t;                                                    \
-        constexpr size_t enum_size{::enums::details::va_count(STRINGS)};    \
-        constexpr string_type_t strings{ ___ENUM_STRINGS(STRINGS) };        \
-    }}}                                                                     \
-    enum class NAME { ___ENUM_VALUES(VALUES) };                             \
-    inline const char* to_string(NAME e) {                                  \
-        return enums::details::NAME::strings[static_cast<int>(e)]; }        \
-    inline bool from_string(const char* s, NAME& e) {                       \
-        for (auto n = 0; n < enums::details::NAME::enum_size; n++) {        \
-            if (strcmp(s, enums::details::NAME::strings[n]) == 0) {         \
-                e = static_cast<NAME>(n); return true; } }                  \
-        e = static_cast<NAME>(enums::details::NAME::enum_size-1);           \
-        return false; }                                                     \
-    inline std::ostream& operator<<(std::ostream& s, NAME e) {              \
-        s << to_string(e); return s; }                                      \
-    inline std::istream& operator>>(std::istream& s, NAME& e) {             \
-        std::string r; s >> r;                                              \
-        if (!from_string(r.c_str(), e)) {                                   \
-            s.setstate(std::ios_base::badbit); }                            \
+#define ENUMS(NAME, VALUES, STRINGS)                                           \
+    namespace enums{ namespace details { namespace NAME {                      \
+        typedef std::array<                                                    \
+            char[::cmn::enums::details::va_max_len(___ENUM_STRINGS(STRINGS))], \
+            ::cmn::enums::details::va_count(___ENUM_STRINGS(STRINGS))          \
+        > string_type_t;                                                       \
+        constexpr size_t enum_size{::cmn::enums::details::va_count(STRINGS)};  \
+        constexpr string_type_t strings{ ___ENUM_STRINGS(STRINGS) };           \
+    }}}                                                                        \
+    enum class NAME { ___ENUM_VALUES(VALUES) };                                \
+    inline const char* to_string(NAME e) {                                     \
+        return enums::details::NAME::strings[static_cast<int>(e)]; }           \
+    inline bool from_string(const char* s, NAME& e) {                          \
+        for (auto n = 0; n < enums::details::NAME::enum_size; n++) {           \
+            if (strcmp(s, enums::details::NAME::strings[n]) == 0) {            \
+                e = static_cast<NAME>(n); return true; } }                     \
+        e = static_cast<NAME>(enums::details::NAME::enum_size-1);              \
+        return false; }                                                        \
+    inline std::ostream& operator<<(std::ostream& s, NAME e) {                 \
+        s << to_string(e); return s; }                                         \
+    inline std::istream& operator>>(std::istream& s, NAME& e) {                \
+        std::string r; s >> r;                                                 \
+        if (!from_string(r.c_str(), e)) {                                      \
+            s.setstate(std::ios_base::badbit); }                               \
         return s; }
 /*
     NOTE:
     I would love to have this, but then we cant create enums in namespaces.
     The only thing i can think of right now, is to put everything into the
-    global ::enums namespace and then typedef the enum type in the current one.
-    But then we can't reuse the same name in different namespaces.
+    global ::cmn::enums namespace and then typedef the enum type in the
+    current one. But then we can't reuse the same name in different namespaces.
 
     template<> constexpr size_t enum_size<NAME>() {                         \
         return enums::details::NAME::strings.size(); }
@@ -95,6 +97,7 @@ template<typename T> constexpr size_t enum_size() { return 0; }
 // Utilities
 //
 
+namespace cmn {
 namespace enums {
 
     template<typename T>
@@ -128,3 +131,4 @@ namespace enums {
     }
 
 } // namespace enums
+} // namespace cmn
