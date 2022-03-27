@@ -3,6 +3,7 @@
 #include <exception>
 #include <type_traits>
 #include <utility>
+#include <variant>
 
 namespace cmn {
 
@@ -43,43 +44,39 @@ private:
 public:
     template<typename T1 = value_type, typename T2 = error_type>
     constexpr result(const value_type& value, typename std::enable_if<!std::is_same<T1, T2>::value>::type* = nullptr)
-        : ok_{true} {data_.value = value; }
+        : ok_{true} { data_ = value; }
 
     template<typename T1 = value_type, typename T2 = error_type>
     constexpr result(const error_type& error, typename std::enable_if<!std::is_same<T1, T2>::value, int>::type* = nullptr)
-        : ok_{false} { data_.error = error; }
+        : ok_{false} { data_ = error; }
 
     template<typename T1 = value_type, typename T2 = error_type>
     constexpr result(bool is_ok, const value_type& value_or_error, typename std::enable_if<std::is_same<T1, T2>::value>::type* = nullptr)
-        : ok_{is_ok} { ok_ ? data_.value = value_or_error : data_.error = value_or_error; }
+        : ok_{is_ok} { data_ = value_or_error; }
 
     constexpr result(const result& rhs)
     {
         ok_ = rhs.ok_;
-        ok_ ? data_.value = rhs.data_.value
-            : data_.error = rhs.data_.error;
+        data_ = rhs.data_;
     }
 
     constexpr result(result&& rhs)
     {
         ok_ = rhs.ok_;
-        ok_ ? data_.value = std::move(rhs.data_.value)
-            : data_.error = std::move(rhs.data_.error);
+        data_ = std::move(rhs.data_);
     }
 
     constexpr result& operator=(const result& rhs)
     {
         ok_ = rhs.ok_;
-        ok_ ? data_.value = rhs.data_.value
-            : data_.error = rhs.data_.error;
+        data_ = rhs.data_;
         return *this;
     }
 
     constexpr result& operator=(result&& rhs)
     {
         ok_ = rhs.ok_;
-        ok_ ? data_.value = std::move(rhs.data_.value)
-            : data_.error = std::move(rhs.data_.error);
+        data_ = std::move(rhs.data_);
         return *this;
     }
 
@@ -91,13 +88,13 @@ public:
     constexpr const value_type& value() const
     {
         if (!ok_) throw bad_result_access{true};
-        return data_.value;
+        return data_;
     }
 
     constexpr const error_type& error() const
     {
         if (ok_) throw bad_result_access{false};
-        return data_.error;
+        return data_;
     }
 
 public:
@@ -105,7 +102,7 @@ public:
     {
         auto r = result{};
         r.ok_ = true;
-        r.data_.value = value;
+        r.data_ = value;
         return r;
     }
 
@@ -113,19 +110,13 @@ public:
     {
         auto r = result{};
         r.ok_ = false;
-        r.data_.error = error;
+        r.data_ = error;
         return r;
     }
 
 private:
     bool ok_;
-
-    union
-    {
-        value_type value;
-        error_type error;
-
-    } data_;
+    std::variant<value_type, error_type> data_;
 };
 
 template<typename E>
