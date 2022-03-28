@@ -88,13 +88,13 @@ public:
     constexpr const value_type& value() const
     {
         if (!ok_) throw bad_result_access{true};
-        return data_;
+        return std::get<value_type>(data_);
     }
 
     constexpr const error_type& error() const
     {
         if (ok_) throw bad_result_access{false};
-        return data_;
+        return std::get<error_type>(data_);
     }
 
 public:
