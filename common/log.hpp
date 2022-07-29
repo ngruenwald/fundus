@@ -7,10 +7,6 @@
 #include <cassert>
 #include <sstream>
 
-#undef HAVE_FMTLIB
-#undef HAVE_RANG
-#undef HAVE_STRMFMT
-
 //
 // Loggers
 //
