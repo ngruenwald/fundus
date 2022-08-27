@@ -7,16 +7,16 @@
 
 namespace cmn {
 
-class bad_result_access : std::exception
+class BadResultAccess : std::exception
 {
 public:
-    explicit bad_result_access(bool ok_or_error) noexcept
+    explicit BadResultAccess(bool ok_or_error) noexcept
         : ok_or_error_(ok_or_error) {}
 
-    bad_result_access(const bad_result_access& other) noexcept
+    BadResultAccess(const BadResultAccess& other) noexcept
         : ok_or_error_(other.ok_or_error_) {}
 
-    bad_result_access& operator=(const bad_result_access& other) noexcept
+    BadResultAccess& operator=(const BadResultAccess& other) noexcept
     {
         ok_or_error_ = other.ok_or_error_;
         return *this;
@@ -32,48 +32,48 @@ private:
 };
 
 template<typename T, typename E>
-class result
+class Result
 {
 public:
     using value_type = T;
     using error_type = E;
 
 private:
-    result() {}
+    Result() {}
 
 public:
     template<typename T1 = value_type, typename T2 = error_type>
-    constexpr result(const value_type& value, typename std::enable_if<!std::is_same<T1, T2>::value>::type* = nullptr)
+    constexpr Result(const value_type& value, typename std::enable_if<!std::is_same<T1, T2>::value>::type* = nullptr)
         : ok_{true} { data_ = value; }
 
     template<typename T1 = value_type, typename T2 = error_type>
-    constexpr result(const error_type& error, typename std::enable_if<!std::is_same<T1, T2>::value, int>::type* = nullptr)
+    constexpr Result(const error_type& error, typename std::enable_if<!std::is_same<T1, T2>::value, int>::type* = nullptr)
         : ok_{false} { data_ = error; }
 
     template<typename T1 = value_type, typename T2 = error_type>
-    constexpr result(bool is_ok, const value_type& value_or_error, typename std::enable_if<std::is_same<T1, T2>::value>::type* = nullptr)
+    constexpr Result(bool is_ok, const value_type& value_or_error, typename std::enable_if<std::is_same<T1, T2>::value>::type* = nullptr)
         : ok_{is_ok} { data_ = value_or_error; }
 
-    constexpr result(const result& rhs)
+    constexpr Result(const Result& rhs)
     {
         ok_ = rhs.ok_;
         data_ = rhs.data_;
     }
 
-    constexpr result(result&& rhs)
+    constexpr Result(Result&& rhs)
     {
         ok_ = rhs.ok_;
         data_ = std::move(rhs.data_);
     }
 
-    constexpr result& operator=(const result& rhs)
+    constexpr Result& operator=(const Result& rhs)
     {
         ok_ = rhs.ok_;
         data_ = rhs.data_;
         return *this;
     }
 
-    constexpr result& operator=(result&& rhs)
+    constexpr Result& operator=(Result&& rhs)
     {
         ok_ = rhs.ok_;
         data_ = std::move(rhs.data_);
@@ -87,28 +87,28 @@ public:
 
     constexpr const value_type& value() const
     {
-        if (!ok_) throw bad_result_access{true};
+        if (!ok_) throw BadResultAccess{true};
         return std::get<value_type>(data_);
     }
 
     constexpr const error_type& error() const
     {
-        if (ok_) throw bad_result_access{false};
+        if (ok_) throw BadResultAccess{false};
         return std::get<error_type>(data_);
     }
 
 public:
-    constexpr static result ok(const value_type& value)
+    constexpr static Result ok(const value_type& value)
     {
-        auto r = result{};
+        auto r = Result{};
         r.ok_ = true;
         r.data_ = value;
         return r;
     }
 
-    constexpr static result error(const error_type& error)
+    constexpr static Result error(const error_type& error)
     {
-        auto r = result{};
+        auto r = Result{};
         r.ok_ = false;
         r.data_ = error;
         return r;
@@ -120,38 +120,38 @@ private:
 };
 
 template<typename E>
-class result<void, E>
+class Result<void, E>
 {
 public:
     using error_type = E;
 
 public:
-    constexpr result()
+    constexpr Result()
         : ok_{true} {}
 
-    constexpr result(const error_type& error)
+    constexpr Result(const error_type& error)
         : ok_{false}, error_{error} {}
 
-    constexpr result(const result& rhs)
+    constexpr Result(const Result& rhs)
     {
         ok_ = rhs.ok_;
         if (!ok_) error_ = rhs.error;
     }
 
-    constexpr result(result&& rhs)
+    constexpr Result(Result&& rhs)
     {
         ok_ = rhs.ok_;
         if (!ok_) error_ = std::move(rhs.error_);
     }
 
-    constexpr result& operator=(const result& rhs)
+    constexpr Result& operator=(const Result& rhs)
     {
         ok_ = rhs.ok_;
         if (!ok_) error_ = rhs.error_;
         return *this;
     }
 
-    constexpr result& operator=(result&& rhs)
+    constexpr Result& operator=(Result&& rhs)
     {
         ok_ = rhs.ok_;
         if (!ok_) error_ = std::move(rhs.error_);
@@ -165,21 +165,21 @@ public:
 
     constexpr const error_type& error() const
     {
-        if (ok_) throw bad_result_access{false};
+        if (ok_) throw BadResultAccess{false};
         return error_;
     }
 
 public:
-    constexpr static result ok()
+    constexpr static Result ok()
     {
-        auto r = result{};
+        auto r = Result{};
         r.ok_ = true;
         return r;
     }
 
-    constexpr static result error(const error_type& error)
+    constexpr static Result error(const error_type& error)
     {
-        auto r = result{};
+        auto r = Result{};
         r.ok_ = false;
         r.error_ = error;
         return r;
