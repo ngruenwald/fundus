@@ -1,6 +1,7 @@
 #pragma once
 
 #include <exception>
+#include <functional>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -98,6 +99,19 @@ public:
     }
 
 public:
+    Result then(
+        std::function<Result<value_type, error_type>(value_type)> fn)
+    {
+        return is_ok() ? fn(value()) : *this;
+    }
+
+    Result on_error(
+        std::function<Result<value_type, error_type>(error_type)> fn)
+    {
+        return is_ok() ? *this : fn(error());
+    }
+
+public:
     constexpr static Result ok(const value_type& value)
     {
         auto r = Result{};
@@ -167,6 +181,19 @@ public:
     {
         if (ok_) throw BadResultAccess{false};
         return error_;
+    }
+
+public:
+    Result then(
+        std::function<Result()> fn)
+    {
+        return is_ok() ? fn() : *this;
+    }
+
+    Result on_error(
+        std::function<Result(error_type)> fn)
+    {
+        return is_ok() ? *this : fn(error());
     }
 
 public:
