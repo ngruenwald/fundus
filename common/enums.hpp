@@ -101,6 +101,14 @@ namespace cmn {
 namespace enums {
 
     template<typename T>
+    T from_string(const char* s)
+    {
+        T e;
+        from_string(s, e);
+        return e;
+    }
+
+    template<typename T>
     void print_enumeration(std::ostream& os, size_t n)
     {
         os << static_cast<T>(n) << " (" << n << ")";
