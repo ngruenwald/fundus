@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 project(fundus VERSION 1.0.2 LANGUAGES CXX)
 
 option(VERSIONED_INSTALL "Install into versioned folders" ON)
+option(UNIT_TESTS "Enable tests" ON)
 
 set(HEADER_INSTALL_DIR include/fundus)
 set(CONFIG_INSTALL_DIR lib/cmake/fundus)
@@ -43,3 +44,8 @@ install(
   FILES fundusConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/fundusConfigVersion.cmake
   DESTINATION ${CONFIG_INSTALL_DIR}
 )
+
+
+if (UNIT_TESTS)
+  add_subdirectory(tests)
+endif()
