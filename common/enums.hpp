@@ -70,7 +70,7 @@ template<typename T> constexpr size_t enum_size() { return 0; }
         for (auto n = 0; n < enums::details::NAME::enum_size; n++) {           \
             if (strcmp(s, enums::details::NAME::strings[n]) == 0) {            \
                 e = static_cast<NAME>(n); return true; } }                     \
-        e = static_cast<NAME>(enums::details::NAME::enum_size-1);              \
+        e = static_cast<NAME>(enums::details::NAME::enum_size);                \
         return false; }                                                        \
     inline std::ostream& operator<<(std::ostream& s, NAME e) {                 \
         s << to_string(e); return s; }                                         \
