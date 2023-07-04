@@ -1,9 +1,11 @@
+#include <sstream>
+
 #include "doctest.h"
 
 #include "common/arguments.hpp"
 
 
-
+/*
 struct Arguments
 {
     int argc;
@@ -21,13 +23,14 @@ struct Arguments
         return result;
     }
 };
+*/
 
 TEST_CASE("Arguments")
 {
     int argc = 2;
     const char* argv[] { "foo", "bar" };
 
-    auto arguments = Arguments::from_args(argc, const_cast<char**>(argv));
+    auto arguments = cmn::Arguments::from_args(argc, const_cast<char**>(argv));
 
     CHECK_EQ(arguments.args.size(), 2);
     CHECK_EQ(arguments.args[0], "foo");
