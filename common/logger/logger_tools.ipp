@@ -104,11 +104,11 @@ std::string get_time_stamp()
     auto now_tm = *std::localtime(&now_c);
 
     auto dur = now.time_since_epoch();
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+    auto ms = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(dur).count() % 10000);
 
     char buffer[32];
     auto len = std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &now_tm);
-    sprintf(buffer + len, ".%04u", ms % 10000);
+    sprintf(buffer + len, ".%04ld", ms);
     return buffer;
 }
 
