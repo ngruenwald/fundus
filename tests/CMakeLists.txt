@@ -1,4 +1,4 @@
-set(target unit_tests)
+set(target fundus_unit_tests)
 
 set(CMAKE_CXX_STANDARD 20)
 
