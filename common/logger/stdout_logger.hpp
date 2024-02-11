@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <sstream>
 #include <common/logger/logger_tools.hpp>
 
